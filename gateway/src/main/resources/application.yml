@@ -1,0 +1,52 @@
+server:
+  port: 9790
+
+  # eureka注册中心配置
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
+spring:
+  application:
+    name: gateway
+
+  # 路由配置
+  cloud:
+    gateway:
+      routes:
+        - id: core-service
+          uri: lb://core-service
+          predicates:
+            - Path=/Core/**
+          filters:
+            - StripPrefix=1
+            - name: Retry
+              args:
+                retries: 3
+                series:
+                  - SERVER_ERROR
+                methods:
+                  - GET
+                  - POST
+                exceptions:
+                  - java.io.IOException
+
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/User/**
+          filters:
+            - StripPrefix=1
+            - name: Retry
+              args:
+                retries: 3
+                series:
+                  - SERVER_ERROR
+                methods:
+                  - GET
+                  - POST
+                exceptions:
+                  - java.io.IOException

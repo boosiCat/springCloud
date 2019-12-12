@@ -1,0 +1,88 @@
+server:
+  port: 9793
+
+spring:
+  application:
+    name: user-service
+  main:
+    #当遇到同样名字的时候，是否允许覆盖注册
+    allow-bean-definition-overriding: true
+
+# mybatis配置
+    mybatis:
+    type-aliases-package: com.common.entity
+    mapper-locations: classpath*:mappings/*.xml
+    configuration:
+      map-underscore-to-camel-case: true
+
+  # mysql配置
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/user?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+    username: root
+    password: 123456
+    druid:
+      initial-size: 5
+      min-idle: 5
+      max-active: 50
+      max-wait: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 1800000
+      validationQuery: SELECT 1 FROM DUAL
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      poolPreparedStatements: true
+      maxPoolPreparedStatementPerConnectionSize: 50
+      connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
+      connection-init-sqls: SET NAMES utf8mb4
+
+
+# eureka注册中心配置
+eureka:
+  instance:
+    prefer-ip-address: true
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 20
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
+# 负载均衡配置
+ribbon:
+  # 饥饿加载
+  eager-load:
+    enabled: true
+    clients: core-service
+
+# feign超时配置
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 10000
+        readTimeout: 10000
+  httpclient:
+    enabled: true
+    connection-timeout: 10000
+    max-connections: 500
+  name:
+    core-service: core-service
+  hystrix:
+    #打开feign-hystrix（默认是关）
+    enabled: true
+
+#熔断器
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          #如果enabled设置为false，则请求超时交给ribbon控制
+          enabled: true
+        isolation:
+          strategy: SEMAPHORE
+          thread:
+            #一般可以将hystrix的超时时间设置的比ribbon的超时时间长一些，否则ribbon的重试(如果配置了)将会失效
+            timeoutInMilliseconds: 60000

@@ -1,0 +1,70 @@
+server:
+  port: 9792
+
+spring:
+  application:
+    name: core-service
+  main:
+    #当遇到同样名字的时候，是否允许覆盖注册
+    allow-bean-definition-overriding: true
+
+# mybatis配置
+  mybatis:
+    type-aliases-package: com.common.entity
+    mapper-locations: classpath*:mappings/*.xml
+    configuration:
+      map-underscore-to-camel-case: true
+
+  # mysql配置
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/core?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+    username: root
+    password: 123456
+    druid:
+      initial-size: 5
+      min-idle: 5
+      max-active: 50
+      max-wait: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 1800000
+      validationQuery: SELECT 1 FROM DUAL
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      poolPreparedStatements: true
+      maxPoolPreparedStatementPerConnectionSize: 50
+      connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
+      connection-init-sqls: SET NAMES utf8mb4
+
+# eureka注册中心配置
+eureka:
+  instance:
+    prefer-ip-address: true
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 10
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
+# 负载均衡配置
+ribbon:
+  # 饥饿加载
+  eager-load:
+    enabled: true
+    clients: user-service
+
+# feign超时配置
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 10000
+        readTimeout: 10000
+  httpclient:
+    enabled: true
+    connection-timeout: 10000
+    max-connections: 500
+  name:
+    user-service: user-service
