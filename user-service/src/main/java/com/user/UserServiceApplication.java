@@ -8,7 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @EnableEurekaClient
 @EnableFeignClients
-@SpringBootApplication(scanBasePackages = "com.rrx.bss")
+@SpringBootApplication(scanBasePackages = "com")
 @MapperScan("com.common.mapper")
 public class UserServiceApplication {
 
